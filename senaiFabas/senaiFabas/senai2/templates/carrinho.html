@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Carrinho - Vb Store{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title"><i class="fas fa-shopping-bag"></i> Seu Carrinho Vb Store</h1>
+    
+    {% if carrinho %}
+        <div class="cart-container">
+            <div class="cart-items">
+                {% for item in carrinho %}
+                    <div class="cart-item">
+                        <div class="item-image">
+                            <img src="{{ url_for('static', filename='images/' + item.produto.imagem) }}" alt="{{ item.produto.nome }}" onerror="this.src='{{ url_for('static', filename='images/produto-default.jpg') }}'">
+                        </div>
+                        
+                        <div class="item-info">
+                            <h3>{{ item.produto.nome }}</h3>
+                            <p class="item-category">{{ item.produto.categoria }}</p>
+                            <p class="item-description">{{ item.produto.descricao[:80] }}{% if item.produto.descricao|length > 80 %}...{% endif %}</p>
+                        </div>
+                        
+                        <div class="item-quantity">
+                            <span class="quantity-label">Quantidade:</span>
+                            <span class="quantity-value">{{ item.quantidade }}</span>
+                        </div>
+                        
+                        <div class="item-price">
+                            <div class="unit-price">R$ {{ "%.2f"|format(item.produto.preco) }}</div>
+                            <div class="total-price">Total: R$ {{ "%.2f"|format(item.total) }}</div>
+                        </div>
+                        
+                        <a href="{{ url_for('remover_carrinho', produto_id=item.produto.id) }}" class="remove-item-btn" onclick="return confirm('Remover este item do carrinho?')">
+                            <i class="fas fa-times-circle"></i>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="cart-summary">
+                <div class="summary-card">
+                    <h3>Resumo do Pedido Vb Store</h3>
+                    
+                    <div class="summary-line">
+                        <span>Subtotal:</span>
+                        <span>R$ {{ "%.2f"|format(total) }}</span>
+                    </div>
+                    
+                    <div class="summary-line">
+                        <span>Frete:</span>
+                        <span>Grátis <i class="fas fa-truck"></i></span>
+                    </div>
+                    
+                    <div class="summary-line summary-total">
+                        <span>Total a Pagar:</span>
+                        <span>R$ {{ "%.2f"|format(total) }}</span>
+                    </div>
+                    
+                    {% if session.usuario_id %}
+                        <form method="POST" action="{{ url_for('finalizar_pedido') }}" style="display: inline;">
+                            <button type="submit" class="btn btn-primary btn-full">
+                                <i class="fas fa-credit-card"></i> Finalizar Pedido Vb Store
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="login-required">
+                            <p>Para finalizar seu pedido, por favor, faça login ou cadastre-se na Vb Store.</p>
+                            <a href="{{ url_for('login') }}" class="btn btn-primary btn-full">
+                                <i class="fas fa-sign-in-alt"></i> Fazer Login
+                            </a>
+                            <a href="{{ url_for('cadastro') }}" class="btn btn-secondary btn-full" style="margin-top: 10px;">
+                                <i class="fas fa-user-plus"></i> Criar Conta
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-cart">
+            <i class="fas fa-shopping-basket"></i>
+            <h3>Seu carrinho está vazio na Vb Store!</h3>
+            <p>Que tal explorar nossos produtos e adicionar algo que você goste?</p>
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Voltar para as Compras
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Não precisamos mais desta função pois o Flask já calcula o total.
+// A lógica de remoção de itens é tratada pelo Flask via rota.
+</script>
+{% endblock %}
